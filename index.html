@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#ffffff">
+    <meta name="description" content="GridLock - Professional Team Management Platform">
+    <title>GridLock</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- LOGIN MODAL -->
+    <div class="modal-overlay" id="loginModal" style="display: flex; z-index: 9999;">
+        <div class="modal" style="max-width: 400px;">
+            <div class="modal-header">
+                <h2 class="modal-title">🔐 Authentification GridLock</h2>
+            </div>
+            <div class="modal-body">
+                <form id="loginForm" onsubmit="handleLogin(event)">
+                    <div class="form-group">
+                        <label>Mot de passe</label>
+                        <input type="password" id="loginPassword" placeholder="Entrez votre mot de passe" required>
+                        <small style="color: var(--gray-500); display: block; margin-top: 0.5rem;">Manager ou Coach</small>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" onclick="submitLogin()">Connexion</button>
+                <button class="btn btn-secondary" onclick="guestAccess()" style="margin-left: 0.5rem;">👤 Accès Invité</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- GUEST REQUEST MODAL -->
+    <div class="modal-overlay" id="guestModal" style="display: none; z-index: 9998;">
+        <div class="modal" style="max-width: 600px;">
+            <div class="modal-header">
+                <h2 class="modal-title">👤 Rejoindre GridLock</h2>
+                <button class="btn-close" onclick="closeGuestModal();">✕</button>
+            </div>
+            <div class="modal-body">
+                <p style="color: var(--gray-600); margin-bottom: 1.5rem;">Remplissez ce formulaire pour faire une demande d'adhésion à notre équipe.</p>
+                <form id="guestRequestForm">
+                    <div class="form-group">
+                        <label>Nom Complet *</label>
+                        <input type="text" id="guestName" placeholder="Votre nom complet" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Pseudo Discord *</label>
+                        <input type="text" id="guestDiscord" placeholder="Votre pseudo Discord" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Êtes-vous sur le Discord GridLock? *</label>
+                        <div style="display: flex; gap: 1rem; margin-top: 0.5rem;">
+                            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                <input type="radio" id="guestOnDiscordYes" name="guestOnDiscord" value="oui" required>
+                                <span>Oui</span>
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                <input type="radio" id="guestOnDiscordNo" name="guestOnDiscord" value="non" required>
+                                <span>Non</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Rôle Souhaité *</label>
+                        <select id="guestRole" required>
+                            <option value="">-- Sélectionnez un rôle --</option>
+                            <option value="pilot">Pilote</option>
+                            <option value="coach">Coach</option>
+                            <option value="reserve">Pilote Réserve</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Classe(s) de Voiture d'intérêt *</label>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-top: 0.5rem;">
+                            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                <input type="checkbox" id="guestCarHypercar" value="hypercar" class="guestCar">
+                                <span>Hypercar</span>
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                <input type="checkbox" id="guestCarLMP2" value="lmp2" class="guestCar">
+                                <span>LMP2</span>
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                <input type="checkbox" id="guestCarGTE" value="gte" class="guestCar">
+                                <span>GTE</span>
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                <input type="checkbox" id="guestCarLMP3" value="lmp3" class="guestCar">
+                                <span>LMP3</span>
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                <input type="checkbox" id="guestCarLMGT3" value="lmgt3" class="guestCar">
+                                <span>LMGT3</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Message de Présentation *</label>
+                        <textarea id="guestMessage" placeholder="Parlez-nous de vous et de votre expérience..." required style="min-height: 120px; resize: vertical;"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeGuestModal();">Annuler</button>
+                <button class="btn btn-primary" onclick="submitGuestRequest()">📤 Envoyer la Demande</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- REPONSE MODAL -->
+    <div class="modal-overlay" id="reponseModal" style="display: none; z-index: 9998;">
+        <div class="modal" style="max-width: 600px;">
+            <div class="modal-header">
+                <h2 class="modal-title" id="reponseModalTitle">Répondre à la demande</h2>
+                <button class="btn-close" onclick="document.getElementById('reponseModal').style.display = 'none';">✕</button>
+            </div>
+            <div class="modal-body" id="reponseModalContent">
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="document.getElementById('reponseModal').style.display = 'none';">Annuler</button>
+                <button class="btn btn-primary" id="reponseModalSaveBtn">💬 Enregistrer la réponse</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="app-container">
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <a class="logo">
+                    <div class="logo-icon">⚡</div>
+                    <span>GridLock</span>
+                </a>
+            </div>
+
+            <nav class="sidebar-nav">
+                <a class="nav-item active" onclick="switchTab('dashboard')" data-tab="dashboard">
+                    <span class="nav-icon">📊</span>
+                    <span>Dashboard</span>
+                </a>
+                <a class="nav-item" onclick="switchTab('trainings')" data-tab="trainings">
+                    <span class="nav-icon">📅</span>
+                    <span>Trainings</span>
+                </a>
+                <a class="nav-item" onclick="switchTab('technical')" data-tab="technical">
+                    <span class="nav-icon">📋</span>
+                    <span>Technical</span>
+                </a>
+                <a class="nav-item" onclick="switchTab('pilots')" data-tab="pilots">
+                    <span class="nav-icon">👥</span>
+                    <span>Pilots</span>
+                </a>
+                <a class="nav-item" onclick="switchTab('announcements')" data-tab="announcements">
+                    <span class="nav-icon">📢</span>
+                    <span>Annonces</span>
+                </a>
+                <a class="nav-item" onclick="switchTab('race-weekend')" data-tab="race-weekend">
+                    <span class="nav-icon">🏁</span>
+                    <span>Race-Weekend</span>
+                </a>                <a class="nav-item" onclick="switchTab('demande-pilote')" data-tab="demande-pilote">
+                    <span class="nav-icon">❓</span>
+                    <span>Demande Pilote</span>
+                </a>
+                <a class="nav-item" onclick="switchTab('mes-demandes')" data-tab="mes-demandes">
+                    <span class="nav-icon">📋</span>
+                    <span>Mes Demandes</span>
+                </a>
+                <a class="nav-item" onclick="switchTab('demandes-pilotes')" data-tab="demandes-pilotes">
+                    <span class="nav-icon">📬</span>
+                    <span>Demandes Pilotes</span>
+                </a>                <a class="nav-item" onclick="switchTab('coaching')" data-tab="coaching">
+                    <span class="nav-icon">🎓</span>
+                    <span>Coaching</span>
+                </a>
+                <a class="nav-item" onclick="switchTab('resultat-coaching')" data-tab="resultat-coaching">
+                    <span class="nav-icon">📊</span>
+                    <span>Résultats Coaching</span>
+                </a>
+                <a class="nav-item" onclick="switchTab('discord')">
+                    <span class="nav-icon">💬</span>
+                    <span>Discord</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="user-card">
+                    <div class="user-avatar">NM</div>
+                    <div class="user-info">
+                        <div class="user-name" id="userDisplayName">Naryxs</div>
+                        <div class="user-role" id="userDisplayRole">Manager</div>
+                    </div>
+                </div>
+                <button class="btn btn-secondary" onclick="logout()" style="width: 100%; margin-top: 1rem;">🚪 Déconnexion</button>
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT -->
+        <div class="main-content">
+            <header class="header">
+                <div class="header-left">
+                    <button class="btn-icon" onclick="toggleSidebar()" style="display: none; margin-right: 1rem;" id="menuToggle">☰</button>
+                    <h1 class="header-title" id="pageTitle">Dashboard</h1>
+                </div>
+                <div class="header-right">
+                    <div class="search-box">
+                        <span class="search-icon">🔍</span>
+                        <input type="text" id="globalSearch" placeholder="Rechercher..." oninput="handleGlobalSearch(this.value)">
+                    </div>
+                    <button class="btn-icon" onclick="showAddModal()">➕</button>
+                    <button class="btn-icon">🔔</button>
+                </div>
+            </header>
+
+            <div class="content">
+                <!-- DASHBOARD TAB -->
+                <div id="dashboard-tab" class="tab-content">
+                    <div class="stats-grid">
+                        <div class="stat-box">
+                            <div class="stat-label">Prochains Trainings</div>
+                            <div class="stat-value" id="stat-trainings">0</div>
+                            <div class="stat-change">✓ À venir</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-label">Notes Techniques</div>
+                            <div class="stat-value" id="stat-technical">0</div>
+                            <div class="stat-change">✓ Documentées</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-label">Pilotes Actifs</div>
+                            <div class="stat-value" id="stat-pilots">0</div>
+                            <div class="stat-change">✓ Équipe</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-label">Sessions</div>
+                            <div class="stat-value" id="stat-sessions">0</div>
+                            <div class="stat-change">✓ Complétées</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-label">Demandes en Attente</div>
+                            <div class="stat-value" id="stat-demandes-attente">0</div>
+                            <div class="stat-change">⏳ À traiter</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-label">Demandes Urgentes</div>
+                            <div class="stat-value" id="stat-demandes-urgentes">0</div>
+                            <div class="stat-change">🔴 Prioritaires</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-label">Demandes Résolues</div>
+                            <div class="stat-value" id="stat-demandes-resolues">0</div>
+                            <div class="stat-change">✅ Complétées</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-label">Sessions Coaching</div>
+                            <div class="stat-value" id="stat-coaching-sessions">0</div>
+                            <div class="stat-change">🎓 Actives</div>
+                        </div>
+                    </div>
+
+                    <div class="table-container">
+                        <div class="table-header">
+                            <div class="table-title">Activité Récente</div>
+                        </div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Type</th>
+                                    <th>Description</th>
+                                    <th>Date & Heure</th>
+                                    <th>Utilisateur</th>
+                                    <th>Statut</th>
+                                </tr>
+                            </thead>
+                            <tbody id="activity-table">
+                                <tr>
+                                    <td colspan="5" style="text-align: center; color: var(--gray-400);">Aucune activité</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- TRAININGS TAB -->
+                <div id="trainings-tab" class="tab-content" style="display: none;">
+                    <div class="table-container">
+                        <div class="table-header">
+                            <div class="table-title">Trainings Planifiés</div>
+                            <button class="btn btn-primary" onclick="showAddModal('training')">+ Ajouter</button>
+                        </div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Titre</th>
+                                    <th>Circuit</th>
+                                    <th>Date</th>
+                                    <th>Voiture</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="trainings-table">
+                                <tr>
+                                    <td colspan="5" style="text-align: center;">
+                                        <div class="empty-state">
+                                            <div class="empty-icon">📅</div>
+                                            <div class="empty-text">Aucun training</div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- TECHNICAL TAB -->
+                <div id="technical-tab" class="tab-content" style="display: none;">
+                    <div class="table-container">
+                        <div class="table-header">
+                            <div class="table-title">Notes Techniques</div>
+                            <button class="btn btn-primary" onclick="showAddModal('technical')">+ Ajouter</button>
+                        </div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Titre</th>
+                                    <th>Circuit</th>
+                                    <th>Voiture</th>
+                                    <th>Tags</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="technical-table">
+                                <tr>
+                                    <td colspan="5" style="text-align: center;">
+                                        <div class="empty-state">
+                                            <div class="empty-icon">📋</div>
+                                            <div class="empty-text">Aucune note</div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- PILOTS TAB -->
+                <div id="pilots-tab" class="tab-content" style="display: none;">
+                    <div class="table-container">
+                        <div class="table-header">
+                            <div class="table-title">Équipe</div>
+                            <button class="btn btn-primary" onclick="showAddModal('pilot')">+ Ajouter</button>
+                        </div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Nom</th>
+                                    <th>Rôle</th>
+                                    <th>Voiture</th>
+                                    <th>Statut</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="pilots-table">
+                                <tr>
+                                    <td colspan="5" style="text-align: center;">
+                                        <div class="empty-state">
+                                            <div class="empty-icon">👥</div>
+                                            <div class="empty-text">Aucun pilote</div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- ANNOUNCEMENTS TAB -->
+                <div id="announcements-tab" class="tab-content" style="display: none;">
+                    <div class="table-container">
+                        <div class="table-header">
+                            <div class="table-title">📢 Annonces</div>
+                            <button class="btn btn-primary" onclick="showAddModal('announcement')">+ Ajouter</button>
+                        </div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Titre</th>
+                                    <th>Message</th>
+                                    <th>Date</th>
+                                    <th>Importance</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="announcements-table">
+                                <tr>
+                                    <td colspan="5" style="text-align: center;">
+                                        <div class="empty-state">
+                                            <div class="empty-icon">📢</div>
+                                            <div class="empty-text">Aucune annonce</div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- DEMANDE PILOTE TAB -->
+                <div id="demande-pilote-tab" class="tab-content" style="display: none;">
+                    <div style="max-width: 600px;">
+                        <div class="table-container">
+                            <div class="table-header">
+                                <div class="table-title">❓ Faire une Demande</div>
+                            </div>
+                            <div style="padding: 2rem;">
+                                <form id="demandeForm" onsubmit="handleDemandeSubmit(event)">
+                                    <div class="form-group">
+                                        <label>Votre Nom</label>
+                                        <input type="text" id="demande-nom" placeholder="Entrez votre nom" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Votre Question/Demande</label>
+                                        <textarea id="demande-question" placeholder="Décrivez votre demande..." required></textarea>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Niveau d'Urgence</label>
+                                        <select id="demande-urgence" required>
+                                            <option value="faible">🟢 Faible</option>
+                                            <option value="normale">🟡 Normale</option>
+                                            <option value="haute">🔴 Haute</option>
+                                        </select>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">📤 Envoyer la Demande</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- MES DEMANDES TAB (PILOT) -->
+                <div id="mes-demandes-tab" class="tab-content" style="display: none;">
+                    <div class="table-container">
+                        <div class="table-header">
+                            <div class="table-title">📋 Mes Demandes</div>
+                        </div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Demande</th>
+                                    <th>Date</th>
+                                    <th>Urgence</th>
+                                    <th>Statut</th>
+                                    <th>Réponse Manager</th>
+                                </tr>
+                            </thead>
+                            <tbody id="mes-demandes-table">
+                                <tr>
+                                    <td colspan="5" style="text-align: center;">
+                                        <div class="empty-state">
+                                            <div class="empty-icon">📬</div>
+                                            <div class="empty-text">Aucune demande</div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- DEMANDES PILOTES TAB -->
+                <div id="demandes-pilotes-tab" class="tab-content" style="display: none;">
+                    <div class="table-container">
+                        <div class="table-header">
+                            <div class="table-title">📬 Demandes des Pilotes</div>
+                        </div>
+                        <div style="padding: 1rem; background: var(--gray-50); border-bottom: 1px solid var(--gray-200); display: flex; gap: 1rem; flex-wrap: wrap;">
+                            <div style="display: flex; gap: 0.5rem; align-items: center;">
+                                <label style="font-weight: 500;">Filtrer par Urgence:</label>
+                                <select id="filterUrgence" onchange="app.filterDemandesPilotes()" style="padding: 0.5rem; border-radius: 0.375rem; border: 1px solid var(--gray-300);">
+                                    <option value="">Toutes</option>
+                                    <option value="faible">🟢 Faible</option>
+                                    <option value="normale">🟡 Normale</option>
+                                    <option value="haute">🔴 Haute</option>
+                                </select>
+                            </div>
+                            <div style="display: flex; gap: 0.5rem; align-items: center;">
+                                <label style="font-weight: 500;">Filtrer par Statut:</label>
+                                <select id="filterStatut" onchange="app.filterDemandesPilotes()" style="padding: 0.5rem; border-radius: 0.375rem; border: 1px solid var(--gray-300);">
+                                    <option value="">Tous</option>
+                                    <option value="attente">⏳ En attente</option>
+                                    <option value="en-cours">🔄 En cours</option>
+                                    <option value="résolue">✅ Résolue</option>
+                                    <option value="rejetée">❌ Rejetée</option>
+                                </select>
+                            </div>
+                            <button class="btn btn-secondary" onclick="app.resetFiltresDemandesPilotes()" style="margin-left: auto;">🔄 Réinitialiser</button>
+                            <button class="btn btn-secondary" onclick="app.exportDemandesAsCSV()">📊 Export CSV</button>
+                            <button class="btn btn-secondary" onclick="app.exportDemandessAsPDF()">📄 Export PDF</button>
+                        </div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Pilote</th>
+                                    <th>Demande</th>
+                                    <th onclick="app.sortDemandesPilotes('date')" style="cursor: pointer; user-select: none;">Date <span id="sort-date-indicator"></span></th>
+                                    <th onclick="app.sortDemandesPilotes('urgence')" style="cursor: pointer; user-select: none;">Urgence <span id="sort-urgence-indicator"></span></th>
+                                    <th onclick="app.sortDemandesPilotes('statut')" style="cursor: pointer; user-select: none;">Statut <span id="sort-statut-indicator"></span></th>
+                                    <th>Réponse</th>
+                                    <th>Assignée à</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="demandes-pilotes-table">
+                                <tr>
+                                    <td colspan="5" style="text-align: center;">
+                                        <div class="empty-state">
+                                            <div class="empty-icon">📬</div>
+                                            <div class="empty-text">Aucune demande de pilote</div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- RACE-WEEKEND TAB -->
+                <div id="race-weekend-tab" class="tab-content" style="display: none;">
+                    <div class="table-container">
+                        <div class="table-header">
+                            <div class="table-title">🏁 Race-Weekend</div>
+                            <button class="btn btn-primary" onclick="showAddModal('race-weekend')">+ Ajouter</button>
+                        </div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Titre</th>
+                                    <th>Circuit</th>
+                                    <th>Date Début</th>
+                                    <th>Classe</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="race-weekend-table">
+                                <tr>
+                                    <td colspan="5" style="text-align: center;">
+                                        <div class="empty-state">
+                                            <div class="empty-icon">🏁</div>
+                                            <div class="empty-text">Aucune race-weekend</div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- COACHING TAB -->
+                <div id="coaching-tab" class="tab-content" style="display: none;">
+                    <div class="table-container">
+                        <div class="table-header">
+                            <div class="table-title">🎓 Sessions de Coaching</div>
+                            <button class="btn btn-primary" onclick="showAddModal('coaching')">+ Ajouter</button>
+                        </div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Titre</th>
+                                    <th>Pilote</th>
+                                    <th>Date</th>
+                                    <th>Durée</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="coaching-table">
+                                <tr>
+                                    <td colspan="5" style="text-align: center;">
+                                        <div class="empty-state">
+                                            <div class="empty-icon">🎓</div>
+                                            <div class="empty-text">Aucune session de coaching</div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- RESULTAT COACHING TAB -->
+                <div id="resultat-coaching-tab" class="tab-content" style="display: none;">
+                    <div class="table-container">
+                        <div class="table-header">
+                            <div class="table-title">📊 Résultats Coaching</div>
+                            <button class="btn btn-primary" onclick="showAddModal('resultat-coaching')">+ Ajouter</button>
+                        </div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Pilote</th>
+                                    <th>Amélioration</th>
+                                    <th>Date</th>
+                                    <th>Feedback</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="resultat-coaching-table">
+                                <tr>
+                                    <td colspan="5" style="text-align: center;">
+                                        <div class="empty-state">
+                                            <div class="empty-icon">📊</div>
+                                            <div class="empty-text">Aucun résultat de coaching</div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- DISCORD TAB -->
+                <div id="discord-tab" class="tab-content" style="display: none;">
+                    <div style="max-width: 900px;">
+                        <!-- GESTION MOTS DE PASSE -->
+                        <div class="table-container" style="margin-bottom: 2rem;">
+                            <div class="table-header">
+                                <div class="table-title">🔐 Gestion des Mots de Passe</div>
+                            </div>
+                            <div style="padding: 2rem;">
+                                <div style="background-color: #fff3cd; border-left: 4px solid #ffc107; padding: 1rem; margin-bottom: 1.5rem; border-radius: 4px;">
+                                    <strong>⚠️ Accès Manager requis</strong> - Seul un manager peut changer les mots de passe
+                                </div>
+                                <div class="form-group">
+                                    <label>Mot de passe Manager</label>
+                                    <input type="password" id="password-manager" placeholder="Entrez le nouveau mot de passe" value="">
+                                    <small style="color: var(--gray-500); display: block; margin-top: 0.5rem;">Mot de passe pour l'accès Manager</small>
+                                </div>
+                                <div class="form-group">
+                                    <label>Mot de passe Coach</label>
+                                    <input type="password" id="password-coach" placeholder="Entrez le nouveau mot de passe" value="">
+                                    <small style="color: var(--gray-500); display: block; margin-top: 0.5rem;">Mot de passe pour l'accès Coach</small>
+                                </div>
+                                <button class="btn btn-primary" onclick="savePasswords()">🔐 Mettre à jour les mots de passe</button>
+                            </div>
+                        </div>
+
+                        <!-- CONFIGURATION DISCORD -->
+                        <div class="table-container" style="margin-bottom: 2rem;">
+                            <div class="table-header">
+                                <div class="table-title">⚙️ Configuration Discord</div>
+                            </div>
+                            <div style="padding: 2rem;">
+                                <div class="form-group">
+                                    <label>Webhook Trainings</label>
+                                    <input type="text" id="webhook-trainings" placeholder="https://discord.com/api/webhooks/..." value="">
+                                    <small style="color: var(--gray-500); display: block; margin-top: 0.5rem;">Webhook pour les notifications de trainings</small>
+                                </div>
+                                <div class="form-group">
+                                    <label>Webhook Pilots</label>
+                                    <input type="text" id="webhook-pilots" placeholder="https://discord.com/api/webhooks/..." value="">
+                                    <small style="color: var(--gray-500); display: block; margin-top: 0.5rem;">Webhook pour les notifications de pilotes</small>
+                                </div>
+                                <div class="form-group">
+                                    <label>Webhook Annonces</label>
+                                    <input type="text" id="webhook-announcements" placeholder="https://discord.com/api/webhooks/..." value="">
+                                    <small style="color: var(--gray-500); display: block; margin-top: 0.5rem;">Webhook pour les annonces importantes</small>
+                                </div>
+                                <div class="form-group">
+                                    <label>Webhook Race-Weekend</label>
+                                    <input type="text" id="webhook-race-weekend" placeholder="https://discord.com/api/webhooks/..." value="">
+                                    <small style="color: var(--gray-500); display: block; margin-top: 0.5rem;">Webhook pour les Race-Weekend</small>
+                                </div>
+                                <div class="form-group">
+                                    <label>Webhook Coaching</label>
+                                    <input type="text" id="webhook-coaching" placeholder="https://discord.com/api/webhooks/..." value="">
+                                    <small style="color: var(--gray-500); display: block; margin-top: 0.5rem;">Webhook pour les sessions de coaching</small>
+                                </div>
+                                <div class="form-group">
+                                    <label>Webhook Résultats Coaching</label>
+                                    <input type="text" id="webhook-resultat-coaching" placeholder="https://discord.com/api/webhooks/..." value="">
+                                    <small style="color: var(--gray-500); display: block; margin-top: 0.5rem;">Webhook pour les résultats de coaching</small>
+                                </div>
+                                <div class="form-group">
+                                    <label>Webhook Demandes Pilotes</label>
+                                    <input type="text" id="webhook-demandes-pilotes" placeholder="https://discord.com/api/webhooks/..." value="">
+                                    <small style="color: var(--gray-500); display: block; margin-top: 0.5rem;">Webhook pour les demandes des pilotes</small>
+                                </div>
+                                <div class="form-group">
+                                    <label>Webhook Demandes Invités</label>
+                                    <input type="text" id="webhook-demandes-invites" placeholder="https://discord.com/api/webhooks/..." value="">
+                                    <small style="color: var(--gray-500); display: block; margin-top: 0.5rem;">Webhook pour les demandes d'adhésion des invités</small>
+                                </div>
+                                <button class="btn btn-primary" onclick="saveWebhooks()">💾 Sauvegarder</button>
+                            </div>
+                        </div>
+
+                        <div class="table-container">
+                            <div class="table-header">
+                                <div class="table-title">📤 Envoyer vers Discord</div>
+                            </div>
+                            <div style="padding: 2rem;">
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem;">
+                                    <div>
+                                        <h3 style="margin-bottom: 1rem; font-weight: 600;">📅 Trainings</h3>
+                                        <div id="trainings-discord-list" style="display: flex; flex-direction: column; gap: 0.75rem;">
+                                            <div style="text-align: center; color: var(--gray-400);">Aucun training</div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <h3 style="margin-bottom: 1rem; font-weight: 600;">👥 Pilots</h3>
+                                        <div id="pilots-discord-list" style="display: flex; flex-direction: column; gap: 0.75rem;">
+                                            <div style="text-align: center; color: var(--gray-400);">Aucun pilote</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL ADD/EDIT -->
+    <div class="modal-overlay" id="addModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 class="modal-title" id="modalTitle">Ajouter Training</h2>
+                <button class="modal-close" onclick="closeModal()">✕</button>
+            </div>
+            <div class="modal-body">
+                <form id="addForm" onsubmit="handleSubmit(event)">
+                    <div id="formFields"></div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal()">Annuler</button>
+                <button class="btn btn-primary" onclick="submitForm()">Ajouter</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
