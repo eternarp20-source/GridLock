@@ -52,7 +52,7 @@ const app = {
     userNom: null,  // Stocker le nom du pilote qui s'est connecté // 'manager', 'coach', 'pilot', ou null
     passwords: {
         manager: 'Captain0310',
-        coach: 'coach123',
+        coach: 'coachGrid',
         pilot: 'pilot123'
     },
     data: {
