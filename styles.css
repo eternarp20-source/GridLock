@@ -424,6 +424,9 @@ tbody tr:hover {
     border-radius: 16px;
     width: 90%;
     max-width: 600px;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
     animation: slideUp 0.3s;
 }
@@ -463,6 +466,8 @@ tbody tr:hover {
 
 .modal-body {
     padding: 2rem;
+    overflow-y: auto;
+    flex: 1;
 }
 
 .modal-footer {
@@ -593,6 +598,7 @@ textarea {
     .modal {
         width: 95%;
         max-width: 100%;
+        max-height: 85vh;
     }
 }
 
