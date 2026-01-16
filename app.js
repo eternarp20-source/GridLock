@@ -52,7 +52,7 @@ const app = {
     userNom: null,  // Stocker le nom du pilote qui s'est connecté // 'manager', 'coach', 'pilot', ou null
     passwords: {
         manager: 'Captain0310',
-        coach: 'coachGrid',
+        coach: 'coach123',
         pilot: 'pilot123'
     },
     data: {
@@ -1739,9 +1739,9 @@ function submitGuestRequest() {
     const onDiscord = document.querySelector('input[name="guestOnDiscord"]:checked')?.value;
     const role = document.getElementById('guestRole').value;
     
-    // Récupérer les voitures cochées
-    const carCheckboxes = document.querySelectorAll('.guestCar:checked');
-    const cars = Array.from(carCheckboxes).map(cb => cb.value);
+    // Récupérer les voitures sélectionnées depuis le select multiple
+    const carSelect = document.getElementById('guestCarClasses');
+    const cars = Array.from(carSelect.selectedOptions).map(option => option.value);
     
     const message = document.getElementById('guestMessage').value.trim();
 
