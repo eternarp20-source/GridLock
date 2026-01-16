@@ -1785,7 +1785,7 @@ function submitGuestRequest() {
             },
             {
                 name: '🎯 Rôle Souhaité',
-                value: role === 'pilot' ? '🏎️ Pilote' : role === 'coach' ? '🎓 Coach' : '🔄 Pilote Réserve',
+                value: role === 'pilot' ? '🏎️ Pilote' : role === 'coach' ? '🎓 Coach' : role === 'reserve' ? '🔄 Pilote Réserve' : '🔧 Ingénieur',
                 inline: true
             },
             {
