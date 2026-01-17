@@ -1689,15 +1689,16 @@ function saveWebhooks() {
     const coaching = document.getElementById('webhook-coaching').value;
     const resultatCoaching = document.getElementById('webhook-resultat-coaching').value;
     const demandesPilotes = document.getElementById('webhook-demandes-pilotes').value;
+    const demandesInvites = document.getElementById('webhook-demandes-invites').value;
     
-    localStorage.setItem('gridlock-webhooks', JSON.stringify({ trainings, pilots, announcements, raceWeekend, coaching, resultatCoaching, demandesPilotes }));
+    localStorage.setItem('gridlock-webhooks', JSON.stringify({ trainings, pilots, announcements, raceWeekend, coaching, resultatCoaching, demandesPilotes, demandesInvites }));
     alert('✅ Webhooks sauvegardés!');
 }
 
 function loadWebhooks() {
     const saved = localStorage.getItem('gridlock-webhooks');
     if (saved) {
-        const { trainings, pilots, announcements, raceWeekend, coaching, resultatCoaching, demandesPilotes } = JSON.parse(saved);
+        const { trainings, pilots, announcements, raceWeekend, coaching, resultatCoaching, demandesPilotes, demandesInvites } = JSON.parse(saved);
         document.getElementById('webhook-trainings').value = trainings || '';
         document.getElementById('webhook-pilots').value = pilots || '';
         document.getElementById('webhook-announcements').value = announcements || '';
@@ -1705,6 +1706,7 @@ function loadWebhooks() {
         document.getElementById('webhook-coaching').value = coaching || '';
         document.getElementById('webhook-resultat-coaching').value = resultatCoaching || '';
         document.getElementById('webhook-demandes-pilotes').value = demandesPilotes || '';
+        document.getElementById('webhook-demandes-invites').value = demandesInvites || '';
     }
 }
 
