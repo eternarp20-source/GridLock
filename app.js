@@ -1761,8 +1761,14 @@ function submitGuestRequest() {
         return;
     }
 
-    // Récupérer le webhook depuis la config
-    const webhookUrl = document.getElementById('webhook-demandes-invites')?.value;
+    // Récupérer le webhook depuis localStorage
+    const saved = localStorage.getItem('gridlock-webhooks');
+    let webhookUrl = '';
+    
+    if (saved) {
+        const webhooks = JSON.parse(saved);
+        webhookUrl = webhooks.demandesInvites || '';
+    }
     
     if (!webhookUrl) {
         alert('❌ Le webhook des demandes d\'invités n\'est pas configuré. Contactez l\'administrateur.');
