@@ -2097,5 +2097,6 @@ document.addEventListener('DOMContentLoaded', function() {
         return;
     }
     app.init();
+    loadWebhooks();
     console.log('✅ GridLock app initialized');
 });
